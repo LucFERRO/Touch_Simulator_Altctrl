@@ -4,8 +4,16 @@ using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
+    [Header("Difficulty Settings")]
+    public float timePassed;
     public float difficultyScaling;
     public float startingDifficulty;
+    public float chancesOfDoubleProjectiles;
+    public float chancesOfDoubleSaws;
+    [Header("Spawners Position")]
+    public bool areSpawnerVisible;
+    public float midRowHeight;
+    public float sideDistance;
     public Transform playerTransform;
     public Transform spawnersPos;
     public GameObject topSpawner;
@@ -18,11 +26,6 @@ public class Manager : MonoBehaviour
     public GameObject projectile1;
     public GameObject topProjectile;
     public GameObject[] smallProjectileSpawners;
-    public float timePassed;
-    [Header("Spawners Position")]
-    public bool areSpawnerVisible;
-    public float midRowHeight;
-    public float sideDistance;
 
     void Start()
     {
@@ -63,26 +66,67 @@ public class Manager : MonoBehaviour
         {
             GameObject createdProjectile = null;
             int randomSpawnerInt = Random.Range(0, 6);
-            if (randomSpawnerInt < 3)
+            if (randomSpawnerInt == 0)
             {
-                createdProjectile = SpawnSmallProjectile(randomSpawnerInt);
+                createdProjectile = SpawnSmallProjectile(1);
             }
-            else if (randomSpawnerInt % 2 == 1)
+            else if (randomSpawnerInt < 3)
             {
-                createdProjectile = SpawnSaw(randomSpawnerInt == 3);
+                bool leftOrRightProjectile = randomSpawnerInt == 1;
+                ExtraSpawn(projectile1, chancesOfDoubleProjectiles, leftOrRightProjectile);
+                createdProjectile = SpawnSmallProjectile(leftOrRightProjectile ? 2 : 0);
+            }
+            else if (randomSpawnerInt < 5)
+            {
+                bool leftOrRightSaw = randomSpawnerInt == 3;
+                ExtraSpawn(saw, chancesOfDoubleSaws, !leftOrRightSaw);
+                createdProjectile = SpawnSaw(leftOrRightSaw);
             }
             else
             {
                 createdProjectile = SpawnTopProjectile();
             }
+
             createdProjectile.GetComponent<Projectile>().playerTransform = playerTransform;
             createdProjectile.GetComponent<Projectile>().speed = startingDifficulty + difficultyScaling;
+
+            IncreaseDifficulty();
+            timePassed = 0f;
+
+        }
+
+        void IncreaseDifficulty()
+        {
             if (difficultyScaling < 40)
             {
                 difficultyScaling += 2f;
             }
-            timePassed = 0f;
+        }
 
+        void ExtraSpawn(GameObject item, float chancesOfDouble, bool isLeftOrRight)
+        {
+            if (difficultyScaling < 20){
+                return;
+            }
+
+            bool doubledProj = Random.Range(0, 100) < chancesOfDouble;
+            if (!doubledProj)
+            {
+                return;
+            }
+
+            GameObject extraProjectile;
+
+            if (item == saw)
+            {
+                extraProjectile = SpawnSaw(isLeftOrRight);
+            } else
+            {
+                extraProjectile = SpawnSmallProjectile(isLeftOrRight ? 0 : 2);
+            }
+
+            extraProjectile.GetComponent<Projectile>().playerTransform = playerTransform;
+            extraProjectile.GetComponent<Projectile>().speed = startingDifficulty + difficultyScaling;
         }
 
         GameObject SpawnTopProjectile()
