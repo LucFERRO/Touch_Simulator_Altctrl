@@ -29,11 +29,21 @@ public class Manager : MonoBehaviour
     [Header("Projectiles")]
     public GameObject midProjectile;
     public GameObject[] grenades;
-    public GameObject saw;
+    public GameObject saw;    
     //Archives
     public GameObject sawTest;
     public GameObject projectile1;
     public GameObject topProjectile;
+    [Header("Sounds Manager")]
+    public SoundControl soundControl;
+    public PlayerControl playerControl;
+    //public AudioClip[] projectileSounds;
+    //public AudioClip[] hitSounds;
+    //public AudioClip shieldSound;
+    //public AudioSource audioSource;
+    //public AudioClip currentSound;
+    //public float timer;
+    //private float currentTimer;
 
     void Start()
     {
@@ -69,7 +79,7 @@ public class Manager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        timePassed += Time.deltaTime * (1 + difficultyScaling / 10);
+        timePassed += Time.deltaTime * (1 + difficultyScaling / 20);
         if (timePassed > 5f)
         {
             GameObject createdProjectile = null;

@@ -23,6 +23,14 @@ public class PlayerControl : MonoBehaviour
     [Range(3, 10)] public int hp;
     public int maxHp;
     public GameObject[] hpBars;
+    [Header("Pause Manager")]
+    public GameObject pause1;
+    public GameObject pause2;
+    public GameObject pauseGif;
+    public float inactiveMaxTimer;
+    public float inactiveTimer;
+    [Header("Sounds")]
+    public SoundControl soundControl;
     [Header("Controls")]
     public int tiltAngle;
     public int crouchAngle;
@@ -34,12 +42,22 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         hp = maxHp;
+        inactiveTimer = inactiveMaxTimer;
         //CreateHpBar(maxHp-1);
         startingPos = transform.position;
     }
 
     void Update()
     {
+        if (inactiveTimer <= 0) {
+            Time.timeScale = 0f;
+            pauseGif.SetActive(true);
+        } else
+        {
+            Time.timeScale = 1f;
+            inactiveTimer -= Time.deltaTime;
+            pauseGif.SetActive(false);
+        }
         SawDodgeHandler();
         CrouchHandler();
         AttackHandler();
@@ -67,6 +85,7 @@ public class PlayerControl : MonoBehaviour
         }
         hp -= 1;
         hpBars[hp].SetActive(false);
+        soundControl.GettingHitManager();
     }
 
     void AttackHandler()
@@ -74,28 +93,31 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             leftAttack.SetActive(true);
-            this.Invoke(() => leftAttack.SetActive(false), attackDuration);            
+            this.Invoke(() => leftAttack.SetActive(false), attackDuration);
+            soundControl.PunchSound();
         }        
 
         if (Input.GetKeyDown(KeyCode.Y))
         {
             rightAttack.SetActive(true);
             this.Invoke(() => rightAttack.SetActive(false), attackDuration);
+            soundControl.PunchSound();
         }
     }
 
     void ShieldHandler()
     {
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.G))
         {
             shield.SetActive(true);
+            soundControl.ShieldSound();
             this.Invoke(() => shield.SetActive(false), attackDuration);
         }
     }
-
+    
     void CrouchHandler()
     {
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKey(KeyCode.E) && Input.GetKey(KeyCode.D))
         {
             Vector3 newPos = transform.position;
             newPos.y = startingPos.y - 1;
@@ -111,11 +133,16 @@ public class PlayerControl : MonoBehaviour
 
     void SawDodgeHandler()
     {
+
+        if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.W))
+        {
+            inactiveTimer = inactiveMaxTimer;
+        }
         if (Input.GetKey(KeyCode.Q) && Input.GetKey(KeyCode.W))
         {
             transform.position = Vector3.Lerp(transform.position, startingPos, .05f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, .05f); ;
-        }
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, .05f);
+        } 
         if (!Input.GetKey(KeyCode.Q))
         {
             Vector3 newPos = transform.position;

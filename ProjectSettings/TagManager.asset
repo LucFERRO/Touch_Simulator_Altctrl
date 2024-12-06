@@ -6,6 +6,7 @@ TagManager:
   tags:
   - midProjectile
   - grenade
+  - soundArea
   layers:
   - Default
   - TransparentFX
