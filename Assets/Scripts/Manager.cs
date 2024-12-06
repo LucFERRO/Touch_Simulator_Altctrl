@@ -10,6 +10,7 @@ public class Manager : MonoBehaviour
     public float startingDifficulty;
     public float chancesOfDoubleProjectiles;
     public float chancesOfDoubleSaws;
+
     [Header("Spawners Position")]
     public bool areSpawnerVisible;
     public float midRowHeight;

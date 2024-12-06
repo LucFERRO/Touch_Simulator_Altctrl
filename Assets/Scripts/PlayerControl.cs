@@ -19,8 +19,11 @@ public static class Utility
 }
 public class PlayerControl : MonoBehaviour
 {
-    public int hp;
+    [Header("Health Manager")]
+    [Range(3, 10)] public int hp;
     public int maxHp;
+    public GameObject[] hpBars;
+    [Header("Controls")]
     public int tiltAngle;
     public int crouchAngle;
     public float attackDuration;
@@ -31,6 +34,7 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         hp = maxHp;
+        //CreateHpBar(maxHp-1);
         startingPos = transform.position;
     }
 
@@ -40,10 +44,25 @@ public class PlayerControl : MonoBehaviour
         CrouchHandler();
         AttackHandler();
         ShieldHandler();
-        if (hp <= 0)
+    }
+
+    void CreateHpBar(int maximumHpIndex)
+    {
+        for (int i = 0; i < 10; i++)
         {
-            Debug.Log("YOU DIED");
+            if (i < maximumHpIndex)
+            {
+                hpBars[i].SetActive(true);
+            } else
+            {
+                hpBars[i].SetActive(false);
+            }
         }
+    }
+    void HealthManager()
+    {
+        hp -= 1;
+        hpBars[hp].SetActive(false);
     }
 
     void AttackHandler()
@@ -119,7 +138,6 @@ public class PlayerControl : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("HIT!");
-        hp -= 1;
+        HealthManager();
     }
 }
