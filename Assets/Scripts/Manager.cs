@@ -15,6 +15,7 @@ public class Manager : MonoBehaviour
     public bool areSpawnerVisible;
     public float midRowHeight;
     public float sideDistance;
+    public float botSideDistance;
     public Transform playerTransform;
     public Transform spawnersPos;
     public GameObject topSpawner;
@@ -23,10 +24,16 @@ public class Manager : MonoBehaviour
     public GameObject rightSpawner;
     public GameObject botLeftSpawner;
     public GameObject botRightSpawner;
+    public GameObject[] smallProjectileSpawners;
+
+    [Header("Projectiles")]
+    public GameObject midProjectile;
+    public GameObject[] grenades;
     public GameObject saw;
+    //Archives
+    public GameObject sawTest;
     public GameObject projectile1;
     public GameObject topProjectile;
-    public GameObject[] smallProjectileSpawners;
 
     void Start()
     {
@@ -41,20 +48,20 @@ public class Manager : MonoBehaviour
         for (int i = -1; i < 2; i++)
         {
             Vector3 midRowPos = Vector3.zero;
+            Vector3 botRowPos = Vector3.zero;
             midRowPos.x = i * sideDistance;
+            botRowPos.x = i * botSideDistance;
             if (i == -1)
             {
-                botLeftSpawner.transform.position = spawnersPos.position + midRowPos;
+                botLeftSpawner.transform.position = spawnersPos.position + botRowPos;
             }
             if (i == 1)
             {
-                botRightSpawner.transform.position = spawnersPos.position + midRowPos;
+                botRightSpawner.transform.position = spawnersPos.position + botRowPos;
             }
             midRowPos.y = midRowHeight;
             smallProjectileSpawners[i + 1].transform.position = spawnersPos.position + midRowPos;
         }
-
-
 
         timePassed = 4f;
     }
@@ -69,13 +76,13 @@ public class Manager : MonoBehaviour
             int randomSpawnerInt = Random.Range(0, 6);
             if (randomSpawnerInt == 0)
             {
-                createdProjectile = SpawnSmallProjectile(1);
+                createdProjectile = SpawnMidProjectile();
             }
             else if (randomSpawnerInt < 3)
             {
                 bool leftOrRightProjectile = randomSpawnerInt == 1;
-                ExtraSpawn(projectile1, chancesOfDoubleProjectiles, leftOrRightProjectile);
-                createdProjectile = SpawnSmallProjectile(leftOrRightProjectile ? 2 : 0);
+                ExtraSpawn(RandomGrenadeChoice(), chancesOfDoubleProjectiles, leftOrRightProjectile);
+                createdProjectile = SpawnSideProjectile(leftOrRightProjectile ? 2 : 0);
             }
             else if (randomSpawnerInt < 5)
             {
@@ -123,7 +130,7 @@ public class Manager : MonoBehaviour
                 extraProjectile = SpawnSaw(isLeftOrRight);
             } else
             {
-                extraProjectile = SpawnSmallProjectile(isLeftOrRight ? 0 : 2);
+                extraProjectile = SpawnSideProjectile(isLeftOrRight ? 0 : 2);
             }
 
             extraProjectile.GetComponent<Projectile>().playerTransform = playerTransform;
@@ -133,17 +140,30 @@ public class Manager : MonoBehaviour
         GameObject SpawnTopProjectile()
         {
             return Instantiate(topProjectile, topSpawner.transform.position, Quaternion.identity);
+        }        
+        GameObject SpawnMidProjectile()
+        {
+            return Instantiate(midProjectile, smallProjectileSpawners[1].transform.position, Quaternion.identity);
         }
 
-        GameObject SpawnSmallProjectile(int spawnerIndex)
+        GameObject SpawnSideProjectile(int spawnerIndex)
         {
-            return Instantiate(projectile1, smallProjectileSpawners[spawnerIndex].transform.position, Quaternion.identity);
+            int randomProjectileIndex = Random.Range(0, 5);
+            return Instantiate(RandomGrenadeChoice(), smallProjectileSpawners[spawnerIndex].transform.position, Quaternion.identity);
+        }
+
+        GameObject RandomGrenadeChoice()
+        {
+            int randomProjectileIndex = Random.Range(0, 5);
+            return grenades[randomProjectileIndex];
         }
 
         GameObject SpawnSaw(bool leftOrRightBool)
         {
             Vector3 sawSpawningPoint = leftOrRightBool ? botLeftSpawner.transform.position : botRightSpawner.transform.position;
-            return Instantiate(saw, sawSpawningPoint, Quaternion.identity);
+            GameObject spawnedSaw = Instantiate(saw, sawSpawningPoint, Quaternion.identity);
+            spawnedSaw.GetComponent<RotatingSaw>().spinDirection = leftOrRightBool;
+            return spawnedSaw;
         }
     }
 }

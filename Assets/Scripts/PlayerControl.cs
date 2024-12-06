@@ -61,6 +61,10 @@ public class PlayerControl : MonoBehaviour
     }
     void HealthManager()
     {
+        if (hp <= 0)
+        {
+            return;
+        }
         hp -= 1;
         hpBars[hp].SetActive(false);
     }
